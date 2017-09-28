@@ -11,6 +11,7 @@ def writeTo(filename, position, content):
 def matCheck(filename, tempPos, number_of_mats):
     with open(filename, 'r+b') as f:        
         for j in range(1, number_of_mats + 1):
+            #print("Material Number : " + str(j))
             matPos = tempPos + (j * 532) + 68
             #print("Mat Pos : " + str(matPos))
             f.seek(matPos)
@@ -22,14 +23,17 @@ def matCheck(filename, tempPos, number_of_mats):
             matPos += offset
             #print(matPos)
             f.seek(matPos)
-            mips = struct.unpack(">l",f.read(4))[0]
+            try:
+                mips = struct.unpack(">l",f.read(4))[0]
+            except:
+                mips = 0
             #print("Mip Value Before: " + str(mips))
             miplist = list(map(hex,struct.unpack('>4B',struct.pack('>l',mips))))
             if miplist[1] == "0x0":
                 #print("Pass")
                 pass
             else:
-                #print("Edit")
+                print("Edit")
                 mips -= 131072
                 content = struct.pack('>l', mips)
                 #print("Mip Value After: " + str(mips))
@@ -39,8 +43,8 @@ def matCheck(filename, tempPos, number_of_mats):
 
 def main():
     if len(sys.argv) < 2:
-        print('Insufficient arguments.')
-        print(sys.argv)
+        #print('Insufficient arguments.')
+        #print(sys.argv)
         exit()
     filename = sys.argv[1]
     with open(filename, 'rb') as f:
@@ -50,6 +54,7 @@ def main():
         startPos = model_offset + 4
         #print("Start Position : " + str(startPos))
         for i in range(1, number_Models + 1):
+            #print("Model Number : " + str(i))
             tempPos = startPos + (i * 16) + 12
             #print("Position : " + str(tempPos))
             f.seek(tempPos)
@@ -66,7 +71,7 @@ def main():
             number_of_mats = struct.unpack(">l",f.read(4))[0]
             #print("Number of Mats : " + str(number_of_mats))
             matCheck(filename, tempPos, number_of_mats)
-            #print("End Test")
+        print("Finished, have a nice day!")
            
 if __name__ == "__main__":
     main()       
