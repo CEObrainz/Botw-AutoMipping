@@ -8,71 +8,112 @@ def writeTo(filename, position, content):
     fh.write(content)
     fh.close()
 
-def matCheck(filename, tempPos, number_of_mats):
-    with open(filename, 'r+b') as f:        
-        for j in range(1, number_of_mats + 1):
-            #print("Material Number : " + str(j))
-            matPos = tempPos + (j * 532) + 68
-            #print("Mat Pos : " + str(matPos))
-            f.seek(matPos)
+    
+def mipTime(filename, position, number_mips):
+    with open(filename, 'r+b') as f: 
+        for k in range(1, number_mips + 1):
+            pPos = 0
+            print("Mip : " + str(k))
+            pPos = position + (k * 16) + 12
+            f.seek(pPos)
             offset = struct.unpack(">l",f.read(4))[0]
-            matPos = matPos + offset + 36
-            f.seek(matPos)
-            #print(matPos)
-            offset = struct.unpack(">l",f.read(4))[0]
-            matPos += offset
-            #print(matPos)
-            f.seek(matPos)
+            pPos += offset
+            f.seek(pPos)
             try:
                 mips = struct.unpack(">l",f.read(4))[0]
             except:
                 mips = 0
-            #print("Mip Value Before: " + str(mips))
+            print("Mip Value Before: " + str(mips))
             miplist = list(map(hex,struct.unpack('>4B',struct.pack('>l',mips))))
             if miplist[1] == "0x0":
-                #print("Pass")
+                print("Pass")
                 pass
             else:
                 print("Edit")
                 mips -= 131072
                 content = struct.pack('>l', mips)
-                #print("Mip Value After: " + str(mips))
-                #print("Struct Version: " + str(content))
-                writeTo(filename, matPos, content)
-                #print("Edited")
+                print("Mip Value After: " + str(mips))
+                print("Struct Version: " + str(content))
+                writeTo(filename, pPos, content)
+                print("Edited")
+    
+    
+def matCheck(filename, tempPos, number_of_mats):
+    with open(filename, 'rb') as f:      
+        for j in range(1, number_of_mats + 1):
+            mPos = 0
+            print("Material Number : " + str(j))
+            mPos = tempPos + 4 + (j * 16) + 12
+            print("Mat Pos : " + str(mPos))
+            f.seek(mPos)
+            offset = struct.unpack(">l",f.read(4))[0]
+            mPos += offset + 36 + 12
+            f.seek(mPos)
+            print(mPos)
+            offset = struct.unpack(">l",f.read(4))[0]
+            mPos += offset
+            print(mPos)
+            f.seek(mPos)
+            mPos += 4
+            f.seek(mPos)
+            numberOfMips = struct.unpack(">l",f.read(4))[0]
+            print("Number of Mips : " + str(numberOfMips))
+            mipTime(filename, mPos, numberOfMips)
 
-def main():
-    if len(sys.argv) < 2:
-        #print('Insufficient arguments.')
-        #print(sys.argv)
-        exit()
-    filename = sys.argv[1]
+def main(filename):
     with open(filename, 'rb') as f:
-        f.seek(model_offset)
+        f.seek(32)
+        ofsModelDict = struct.unpack(">l",f.read(4))[0]
+        pointer = 32 + ofsModelDict
+        f.seek(pointer)
+        modelSize = struct.unpack(">l",f.read(4))[0]
+        print("Size of Model (uint) : " + str(modelSize))
+        pointer += 4
+        f.seek(pointer)
         number_Models = struct.unpack(">l",f.read(4))[0]
-        #print("Number of Models : " + str(number_Models))
-        startPos = model_offset + 4
-        #print("Start Position : " + str(startPos))
+        print("Number of Models : " + str(number_Models))
+        pointer += 4
         for i in range(1, number_Models + 1):
-            #print("Model Number : " + str(i))
-            tempPos = startPos + (i * 16) + 12
-            #print("Position : " + str(tempPos))
-            f.seek(tempPos)
-            offset = struct.unpack(">l",f.read(4))[0]
-            #print("Offset 1 : " + str(offset))
-            tempPos = tempPos + offset + 24
-            #print("Temp Pos : " + str(tempPos))
-            f.seek(tempPos)
-            offset = struct.unpack(">l",f.read(4))[0]
-            #print("Offset 2 : " + str(offset))
-            tempPos = tempPos + offset + 4
-            #print("Temp Pos 2 : " + str(tempPos))
-            f.seek(tempPos)
-            number_of_mats = struct.unpack(">l",f.read(4))[0]
-            #print("Number of Mats : " + str(number_of_mats))
-            matCheck(filename, tempPos, number_of_mats)
+            Mpointer = 0
+            print("Model Number : " + str(i))
+            Mpointer = pointer + (i * 16) + 12
+            print(Mpointer)
+            f.seek(Mpointer)
+            ofsData = struct.unpack(">l",f.read(4))[0]
+            Mpointer += ofsData + 24
+            print(Mpointer)
+            f.seek(Mpointer)
+            ofsMaterialDict = struct.unpack(">l",f.read(4))[0]
+            Mpointer += ofsMaterialDict + 4
+            f.seek(Mpointer)
+            number_Materials = struct.unpack(">l",f.read(4))[0]
+            print("Number of Mats : " + str(number_Materials))
+            print(Mpointer)
+            matCheck(filename, Mpointer, number_Materials)
         print("Finished, have a nice day!")
            
 if __name__ == "__main__":
-    main()       
+    print(sys.version)
+    if len(sys.argv) < 2:
+        print('Insufficient arguments. Please supply a bfres file when using this tool.')
+        exit()
+    filename = sys.argv[1]
+    with open(filename, 'rb') as f:
+        p1 = struct.unpack(">s",f.read(1))[0]
+        p2 = struct.unpack(">s",f.read(1))[0]
+        p3 = struct.unpack(">s",f.read(1))[0]
+        p4 = struct.unpack(">s",f.read(1))[0]
+        word = str(p1+p2+p3+p4)
+        word = word.replace("b", "").replace("'", "")
+        if word == "Yaz0":
+            print("Error 1: Encoded File Detected")
+            print("This file has not been decoded yet." +
+            " Please use BOTW-Yaz0 or Yaz0dec before using this tool.")
+            exit()
+        elif word != "FRES":
+            print("Error 2: Unusual Filetype detected")
+            print('File is the wrong format. Format Given : ' + str(word))
+            exit()
+        print("File Accepted...please wait while Mip-Maps are disabled.")
+    main(filename)       
         
