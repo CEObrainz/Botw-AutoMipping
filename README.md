@@ -1,5 +1,5 @@
 # Botw-AutoMipping
-<img src="https://img.shields.io/badge/Python-3.5%2B-yellow.svg"> <img href="https://www.patreon.com/Ainz" src="https://img.shields.io/badge/Support-me!-orange.svg">
+<img src="https://img.shields.io/badge/Python-3.5%2B-yellow.svg"> [<img src="https://img.shields.io/badge/Support-me!-orange.svg">](https://www.patreon.com/Ainz)
 
 A automatic mip-disabling tool for bfres files in Zelda: Breath of the Wild.
 
