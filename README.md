@@ -1,7 +1,7 @@
 # Botw-AutoMipping
 A automatic mip-disabling tool for bfres files in Zelda: Breath of the Wild.
 
-Simply drag the script and the bfres model you want to modify into command line and it will do its magic.
+Simply drag the script and the bfres model you want to modify into command line and it will do its magic. Note that if you don't put a space between the program and the bfres file it won't work.
 
 >C:\Location_Of_Folder\> BOTW-AutoMips.py Model_File.bfres
 
