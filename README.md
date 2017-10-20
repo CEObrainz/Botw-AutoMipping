@@ -7,6 +7,10 @@ Simply drag the script and the bfres model you want to modify into command line 
 
 >C:\Location_Of_Folder\> BOTW-AutoMips.py Model_File.bfres
 
+This program also supports the use of multiple files at once. Be sure that there is a space between every file in command line or it won't work (support for this will come in the future)
+
+## Troubleshooting
+
 If you have trouble using this tool on a windows system, there is a possibility that your registry is preventing you from using python scripts in the command line.
 
 Modifying the following two registries so that the arguments are passed along to Python:
